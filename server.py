@@ -4,8 +4,8 @@ from flask import Flask, request, send_file
 
 app = Flask(__name__)
 
-MODEL_PATH = os.getenv("MODEL_PATH", "vi/model2.onnx")
-CONFIG_PATH = os.getenv("CONFIG_PATH", "vi/config2.json")
+MODEL_PATH = os.getenv("MODEL_PATH", "vi/model.onnx")
+CONFIG_PATH = os.getenv("CONFIG_PATH", "vi/config.json")
 PORT = int(os.getenv("PORT", 5000))
 
 @app.route("/synthesize", methods=["POST"])
