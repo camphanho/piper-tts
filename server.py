@@ -1,28 +1,38 @@
-from flask import Flask, request, send_file
 import os
 import subprocess
+from flask import Flask, request, send_file
 
 app = Flask(__name__)
 
-MODEL_PATH = "vi/model.onnx"  # Đường dẫn tới model Piper
-CONFIG_PATH = "vi/config.json"  # Đường dẫn tới file cấu hình
+MODEL_PATH = os.getenv("MODEL_PATH", "vi/model.onnx")
+CONFIG_PATH = os.getenv("CONFIG_PATH", "vi/config.json")
+PORT = int(os.getenv("PORT", 5000))
 
 @app.route("/synthesize", methods=["POST"])
 def synthesize():
     data = request.json
-    text = data.get("text", "")
+    text = data.get("text", "").strip()
 
     if not text:
         return {"error": "No text provided"}, 400
 
     output_path = "output.wav"
-    
-    # Chạy Piper TTS để tạo file âm thanh
-    command = f'piper --model {MODEL_PATH} --config {CONFIG_PATH} --output_file {output_path} --text "{text}"'
-    subprocess.run(command, shell=True)
+
+    # Gọi Piper đúng cách
+    try:
+        with open(output_path, "wb") as out_wav:
+            process = subprocess.run(
+                ["piper", "--model", MODEL_PATH, "--config", CONFIG_PATH, "--output_file", output_path],
+                input=text.encode("utf-8"),
+                stdout=out_wav,
+                stderr=subprocess.PIPE,
+                check=True
+            )
+    except subprocess.CalledProcessError as e:
+        return {"error": "Piper failed", "details": e.stderr.decode()}, 500
 
     return send_file(output_path, mimetype="audio/wav")
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=PORT)
 
