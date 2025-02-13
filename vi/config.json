@@ -1,13 +1,13 @@
 {
     "audio": {
-        "sample_rate": 16000
+        "sample_rate": 22050
     },
     "espeak": {
         "voice": "vi"
     },
     "inference": {
-        "noise_scale": 0.667,
-        "length_scale": 1,
+        "noise_scale": 0.5,
+        "length_scale": 1.2,
         "noise_w": 0.8
     },
     "phoneme_map": {},
